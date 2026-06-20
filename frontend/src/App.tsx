@@ -253,7 +253,7 @@ function LoadingOverlay() {
 
 function ErrorBanner({ message, onClose }: { message: string; onClose: () => void }) {
   return (
-    <div className="mb-5 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-800 shadow-sm dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-200">
+    <div className="mb-5 flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-rose-800 shadow-sm dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-200">
       <span className="mt-0.5 grid h-6 w-6 flex-none place-items-center rounded-full bg-rose-100 text-sm font-bold dark:bg-rose-900">
         !
       </span>
@@ -307,7 +307,7 @@ function EmptyState({
           ["03", "Reconstruct", "Generate the Neighbor-Joining tree"],
         ].map(([number, title, detail]) => (
           <div
-            className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 text-left dark:border-slate-800 dark:bg-slate-900/60"
+            className="rounded-lg border border-slate-200/80 bg-white/70 p-4 text-left dark:border-slate-800 dark:bg-slate-900/60"
             key={number}
           >
             <span className="text-xs font-bold tracking-[0.18em] text-teal-600 dark:text-teal-400">
@@ -353,7 +353,7 @@ function Toggle({
 
 function CodePanel({ content }: { content: string }) {
   return (
-    <pre className="max-h-[560px] overflow-auto whitespace-pre-wrap break-all rounded-2xl border border-slate-200 bg-slate-950 p-5 font-mono text-xs leading-6 text-slate-200 dark:border-slate-800">
+    <pre className="max-h-[560px] overflow-auto whitespace-pre-wrap break-all rounded-lg border border-slate-200 bg-slate-950 p-5 font-mono text-xs leading-6 text-slate-200 dark:border-slate-800">
       {content}
     </pre>
   );
@@ -397,7 +397,7 @@ function TreePage({ data }: { data: PipelineResult }) {
             <div className="p-4 sm:p-6">
               {activeTab === "Tree viewer" ? (
                 imageError ? (
-                  <div className="grid min-h-[420px] place-items-center rounded-2xl border border-dashed border-rose-200 bg-rose-50 p-8 text-center text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/20 dark:text-rose-300">
+                  <div className="grid min-h-[420px] place-items-center rounded-lg border border-dashed border-rose-200 bg-rose-50 p-8 text-center text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/20 dark:text-rose-300">
                     {imageError}
                   </div>
                 ) : imageUrl ? (
@@ -409,7 +409,7 @@ function TreePage({ data }: { data: PipelineResult }) {
                     />
                   </div>
                 ) : (
-                  <div className="grid min-h-[420px] place-items-center rounded-2xl bg-slate-50 dark:bg-slate-950/50">
+                  <div className="grid min-h-[420px] place-items-center rounded-lg bg-slate-50 dark:bg-slate-950/50">
                     <div className="text-center text-sm text-slate-400">
                       <div className="loading-orbit mx-auto h-10 w-10">
                         <span />
@@ -613,7 +613,7 @@ export default function App() {
             </button>
           </div>
 
-          <div className="mx-4 rounded-2xl border border-white/10 bg-white/[0.045] p-3.5">
+          <div className="mx-4 rounded-lg border border-white/10 bg-white/[0.045] p-3.5">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
@@ -1080,7 +1080,7 @@ function DatasetPage({
             </table>
           </div>
         ) : (
-          <div className="grid min-h-44 place-items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 text-center dark:border-slate-800 dark:bg-slate-950/30">
+          <div className="grid min-h-44 place-items-center rounded-lg border border-dashed border-slate-200 bg-slate-50/60 text-center dark:border-slate-800 dark:bg-slate-950/30">
             <div>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 No dataset loaded
@@ -1275,7 +1275,7 @@ function CorrectionPage({ data }: { data: PipelineResult }) {
               String(value),
             ])}
           />
-          <div className="mt-5 rounded-2xl bg-teal-50 p-4 dark:bg-teal-950/30">
+          <div className="mt-5 rounded-lg bg-teal-50 p-4 dark:bg-teal-950/30">
             <p className="text-xs font-bold uppercase tracking-[0.15em] text-teal-700 dark:text-teal-300">
               Best iterate retained
             </p>
@@ -1428,7 +1428,7 @@ function Downloads({ data }: { data: PipelineResult }) {
             formats from this analysis.
           </p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-right">
+        <div className="rounded-lg border border-white/10 bg-white/5 px-5 py-4 text-right">
           <strong className="block text-2xl text-white">{files.length}</strong>
           <span className="text-xs text-slate-400">files available</span>
         </div>

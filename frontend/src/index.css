@@ -61,7 +61,7 @@ code {
   }
 
   .dna-mark {
-    @apply grid flex-none place-items-center rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 p-2 text-white shadow-[0_10px_30px_rgba(13,148,136,.3)];
+    @apply grid flex-none place-items-center rounded-lg bg-gradient-to-br from-teal-400 to-cyan-600 p-2 text-white shadow-[0_10px_30px_rgba(13,148,136,.3)];
   }
 
   .nav-item {
@@ -73,7 +73,7 @@ code {
   }
 
   .sidebar-run {
-    @apply flex w-full items-center gap-3 rounded-2xl border border-teal-300/20 bg-gradient-to-r from-teal-600 to-cyan-700 p-2.5 text-white shadow-[0_14px_32px_rgba(8,145,178,.2)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(8,145,178,.28)] disabled:cursor-wait disabled:opacity-60;
+    @apply flex w-full items-center gap-3 rounded-lg border border-teal-300/20 bg-gradient-to-r from-teal-600 to-cyan-700 p-2.5 text-white shadow-[0_14px_32px_rgba(8,145,178,.2)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(8,145,178,.28)] disabled:cursor-wait disabled:opacity-60;
   }
 
   .theme-button {
@@ -93,15 +93,15 @@ code {
   }
 
   .card {
-    @apply rounded-[22px] border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,.03),0_12px_35px_rgba(15,23,42,.035)] dark:border-slate-800/90 dark:bg-[#0d1823] dark:shadow-none sm:p-6;
+    @apply min-w-0 rounded-lg border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,.03),0_12px_35px_rgba(15,23,42,.035)] dark:border-slate-800/90 dark:bg-[#0d1823] dark:shadow-none sm:p-6;
   }
 
   .metric-card {
-    @apply flex min-w-0 items-center gap-4 rounded-[20px] border border-slate-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.03),0_10px_28px_rgba(15,23,42,.03)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_rgba(15,23,42,.07)] dark:border-slate-800/90 dark:bg-[#0d1823] dark:hover:border-slate-700;
+    @apply flex min-w-0 items-center gap-4 rounded-lg border border-slate-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.03),0_10px_28px_rgba(15,23,42,.03)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_rgba(15,23,42,.07)] dark:border-slate-800/90 dark:bg-[#0d1823] dark:hover:border-slate-700;
   }
 
   .metric-icon {
-    @apply grid h-11 w-11 flex-none place-items-center rounded-2xl;
+    @apply grid h-11 w-11 flex-none place-items-center rounded-lg;
   }
 
   .metric-blue {
@@ -190,7 +190,7 @@ code {
   }
 
   .result-hero {
-    @apply relative grid min-h-[310px] overflow-hidden rounded-[28px] border border-slate-700 bg-[#071722] p-6 shadow-[0_24px_60px_rgba(2,44,54,.18)] sm:p-9 lg:grid-cols-[1fr_280px];
+    @apply relative grid min-h-[310px] overflow-hidden rounded-lg border border-slate-700 bg-[#071722] p-6 shadow-[0_24px_60px_rgba(2,44,54,.18)] sm:p-9 lg:grid-cols-[1fr_280px];
     background-image:
       radial-gradient(circle at 82% 45%, rgba(45, 212, 191, .26), transparent 22%),
       radial-gradient(circle at 20% 110%, rgba(14, 116, 144, .35), transparent 34%),
@@ -229,7 +229,7 @@ code {
   }
 
   .empty-state {
-    @apply grid min-h-[620px] place-items-center content-center rounded-[28px] border border-slate-200/80 bg-white/80 px-5 py-12 text-center shadow-[0_18px_50px_rgba(15,23,42,.04)] backdrop-blur dark:border-slate-800 dark:bg-[#0d1823]/90;
+    @apply grid min-h-[520px] place-items-center content-center rounded-lg border border-slate-200/80 bg-white/80 px-5 py-10 text-center shadow-[0_18px_50px_rgba(15,23,42,.04)] backdrop-blur dark:border-slate-800 dark:bg-[#0d1823]/90 sm:min-h-[560px] sm:py-12;
   }
 
   .empty-visual {
@@ -249,7 +249,7 @@ code {
   }
 
   .table-shell {
-    @apply overflow-x-auto rounded-2xl border border-slate-200/80 dark:border-slate-800;
+    @apply max-w-full overflow-x-auto rounded-lg border border-slate-200/80 dark:border-slate-800;
   }
 
   .data-table {
@@ -281,15 +281,15 @@ code {
   }
 
   .upload-zone {
-    @apply flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-[22px] border border-dashed border-slate-300 bg-slate-50/60 p-7 text-center transition hover:border-teal-500 hover:bg-teal-50/40 dark:border-slate-700 dark:bg-slate-950/30 dark:hover:border-teal-600 dark:hover:bg-teal-950/20;
+    @apply flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50/60 p-7 text-center transition hover:border-teal-500 hover:bg-teal-50/40 dark:border-slate-700 dark:bg-slate-950/30 dark:hover:border-teal-600 dark:hover:bg-teal-950/20;
   }
 
   .upload-icon {
-    @apply grid h-14 w-14 place-items-center rounded-2xl bg-white text-teal-700 shadow-[0_10px_30px_rgba(15,23,42,.08)] dark:bg-slate-800 dark:text-teal-300;
+    @apply grid h-14 w-14 place-items-center rounded-lg bg-white text-teal-700 shadow-[0_10px_30px_rgba(15,23,42,.08)] dark:bg-slate-800 dark:text-teal-300;
   }
 
   .notice {
-    @apply flex items-start gap-3 rounded-2xl border border-amber-200/70 bg-amber-50/70 p-3.5 text-xs leading-5 text-amber-900/75 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200/75;
+    @apply flex items-start gap-3 rounded-lg border border-amber-200/70 bg-amber-50/70 p-3.5 text-xs leading-5 text-amber-900/75 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200/75;
   }
 
   .notice-icon {
@@ -297,7 +297,7 @@ code {
   }
 
   .process-row {
-    @apply flex gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-3.5 dark:border-slate-800 dark:bg-slate-950/30;
+    @apply flex gap-3 rounded-lg border border-slate-100 bg-slate-50/60 p-3.5 dark:border-slate-800 dark:bg-slate-950/30;
   }
 
   .process-row > span {
@@ -330,7 +330,7 @@ code {
   }
 
   .heatmap-shell {
-    @apply overflow-auto rounded-2xl border border-slate-200/80 bg-slate-50/60 p-3 dark:border-slate-800 dark:bg-slate-950/30 sm:p-5;
+    @apply overflow-auto rounded-lg border border-slate-200/80 bg-slate-50/60 p-3 dark:border-slate-800 dark:bg-slate-950/30 sm:p-5;
   }
 
   .viridis-legend {
@@ -342,7 +342,7 @@ code {
   }
 
   .tree-canvas {
-    @apply grid min-h-[460px] place-items-center overflow-auto rounded-2xl border border-slate-200/80 bg-gradient-to-b from-white to-slate-50 p-3 dark:border-slate-800 dark:from-slate-950/30 dark:to-slate-950/60 sm:p-6;
+    @apply grid min-h-[460px] place-items-center overflow-auto rounded-lg border border-slate-200/80 bg-gradient-to-b from-white to-slate-50 p-3 dark:border-slate-800 dark:from-slate-950/30 dark:to-slate-950/60 sm:p-6;
   }
 
   .toggle {
@@ -367,11 +367,11 @@ code {
 
   .metric-summary,
   .api-hero {
-    @apply flex flex-col gap-6 rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-[0_12px_35px_rgba(15,23,42,.035)] dark:border-slate-800 dark:bg-[#0d1823] sm:flex-row sm:items-center sm:justify-between sm:p-8;
+    @apply flex min-w-0 flex-col gap-6 rounded-lg border border-slate-200/80 bg-white p-6 shadow-[0_12px_35px_rgba(15,23,42,.035)] dark:border-slate-800 dark:bg-[#0d1823] sm:flex-row sm:items-center sm:justify-between sm:p-8;
   }
 
   .metric-summary-score {
-    @apply flex-none rounded-2xl bg-teal-50 px-6 py-4 text-center dark:bg-teal-950/40;
+    @apply flex-none rounded-lg bg-teal-50 px-6 py-4 text-center dark:bg-teal-950/40;
   }
 
   .metric-summary-score strong {
@@ -383,12 +383,12 @@ code {
   }
 
   .download-hero {
-    @apply flex flex-col gap-6 rounded-[24px] border border-slate-700 bg-[#0b1d27] p-6 shadow-[0_20px_50px_rgba(2,44,54,.12)] sm:flex-row sm:items-center sm:justify-between sm:p-8;
+    @apply flex min-w-0 flex-col gap-6 rounded-lg border border-slate-700 bg-[#0b1d27] p-6 shadow-[0_20px_50px_rgba(2,44,54,.12)] sm:flex-row sm:items-center sm:justify-between sm:p-8;
     background-image: radial-gradient(circle at 80% 0%, rgba(45, 212, 191, .18), transparent 32%);
   }
 
   .download-card {
-    @apply flex items-center gap-4 rounded-[20px] border border-slate-200/80 bg-white p-4 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-[0_14px_32px_rgba(15,23,42,.07)] dark:border-slate-800 dark:bg-[#0d1823] dark:hover:border-teal-800;
+    @apply flex min-w-0 items-center gap-4 rounded-lg border border-slate-200/80 bg-white p-4 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-[0_14px_32px_rgba(15,23,42,.07)] dark:border-slate-800 dark:bg-[#0d1823] dark:hover:border-teal-800;
   }
 
   .file-type {
@@ -427,7 +427,7 @@ code {
   }
 
   .loading-panel {
-    @apply w-full max-w-md rounded-[28px] border border-white/10 bg-white p-8 text-center shadow-2xl dark:bg-[#0d1823];
+    @apply w-full max-w-md rounded-lg border border-white/10 bg-white p-8 text-center shadow-2xl dark:bg-[#0d1823];
   }
 
   .loading-orbit {

@@ -17,7 +17,7 @@ const GRID = "#94a3b820";
 const TOOLTIP_STYLE = {
   background: "#0f172a",
   border: "1px solid #334155",
-  borderRadius: "12px",
+  borderRadius: "8px",
   boxShadow: "0 18px 40px rgba(15, 23, 42, .2)",
   color: "#f8fafc",
   fontSize: "12px",
@@ -42,11 +42,11 @@ export function Card({
     <section className={`card ${noPadding ? "!p-0" : ""} ${className}`}>
       {(title || eyebrow || right) && (
         <div
-          className={`flex items-start justify-between gap-4 ${
+          className={`min-w-0 flex items-start justify-between gap-4 ${
             noPadding ? "px-5 pt-5 sm:px-6 sm:pt-6" : "mb-5"
           }`}
         >
-          <div>
+          <div className="min-w-0">
             {eyebrow && <p className="eyebrow">{eyebrow}</p>}
             {title && (
               <h3
@@ -58,7 +58,7 @@ export function Card({
               </h3>
             )}
           </div>
-          {right}
+          <div className="flex-none">{right}</div>
         </div>
       )}
       {children}
@@ -100,7 +100,7 @@ export function Metric({
 
 export function Stepper({ steps }: { steps: string[] }) {
   return (
-    <div className="overflow-x-auto pb-1">
+    <div className="max-w-full overflow-x-auto pb-1">
       <div className="flex min-w-[620px] items-start">
         {steps.map((step, index) => (
           <div className="relative flex flex-1 flex-col items-center" key={step}>
