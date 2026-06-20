@@ -37,14 +37,14 @@ four_point:
   epsilon: 1.0e-9
   # null -> use all C(n, 4) quadruplets when feasible; otherwise reproducibly
   # sample this many without replacement using `seed`.
-  quadruplet_sample_size: null
+  quadruplet_sample_size: 5000   # sample for large n; small n (< C(n,4)) uses all
 
 optimization:
   epochs: 1000
   gamma: 0.05          # base step-size factor
   lambda_reg: 0.001    # Frobenius regularization on omega
   epsilon: 1.0e-9      # convergence tolerance on the tropical norm of the gradient
-  quadruplet_sample_size: null
+  quadruplet_sample_size: 5000   # sample for large n; small n (< C(n,4)) uses all
   seed: 42
 
 outputs:

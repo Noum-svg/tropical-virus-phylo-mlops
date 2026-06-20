@@ -95,6 +95,8 @@ def build_distance_matrix(
     ValueError
         If ``names`` is provided but its length differs from ``sequences``.
     """
+    if not 0.0 <= alpha <= 1.0:
+        raise ValueError(f"alpha must be in [0, 1], got {alpha}.")
     n = len(sequences)
     if names is None:
         names = [f"seq_{i}" for i in range(n)]
@@ -105,10 +107,26 @@ def build_distance_matrix(
                 f"names has length {len(names)} but there are {n} sequences."
             )
 
+    # Encode each sequence once as a uint8 array so the per-pair Hamming count is
+    # a vectorized NumPy operation (scales to hundreds/thousands of sequences).
+    encoded = [np.frombuffer(s.encode("ascii"), dtype=np.uint8) for s in sequences]
+    lengths = [len(s) for s in sequences]
+
     matrix = np.zeros((n, n), dtype=float)
     for i in range(n):
+        a_i, len_i = encoded[i], lengths[i]
         for j in range(i + 1, n):
-            d = pairwise_distance(sequences[i], sequences[j], alpha=alpha)
+            len_j = lengths[j]
+            if len_i == 0 and len_j == 0:
+                d = 0.0
+            elif len_i == 0 or len_j == 0:
+                d = 1.0
+            else:
+                shared = len_i if len_i < len_j else len_j
+                mismatches = int(np.count_nonzero(a_i[:shared] != encoded[j][:shared]))
+                hamming = mismatches / shared
+                length_penalty = abs(len_i - len_j) / max(len_i, len_j)
+                d = alpha * hamming + (1.0 - alpha) * length_penalty
             matrix[i, j] = d
             matrix[j, i] = d
 
