@@ -181,7 +181,17 @@ def fit_tropical_gradient_descent(
     run_cfg = dict(config)
     run_cfg["quadruplets"] = _resolve_quadruplets(config, n)
 
-    w = np.zeros(p, dtype=float)
+    # Warm-start from a previous correction when provided (online learning);
+    # otherwise start from zero.
+    init = config.get("init_omega")
+    if init is not None and p > 0:
+        w = np.asarray(init, dtype=float).ravel().copy()
+        if w.shape[0] != p:
+            raise ValueError(
+                f"init_omega has length {w.shape[0]}, expected {p} for n={n}."
+            )
+    else:
+        w = np.zeros(p, dtype=float)
     best_w = w.copy()
     best_loss = np.inf
     history: list[dict[str, float]] = []

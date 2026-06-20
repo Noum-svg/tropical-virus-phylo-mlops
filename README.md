@@ -162,7 +162,27 @@ python main.py --no-mlflow
 
 On this 300-sequence set the model converges in ~18 s with a relative
 improvement of ~0.999. Raise `--max-records` (and, for very large `n`, keep
-`quadruplet_sample_size` bounded) to scale further.
+`quadruplet_sample_size` bounded) to scale further; the model has also been
+trained on 1500 real sequences (relative improvement ~0.999).
+
+### Online learning (improve the model with use)
+
+The correction can keep improving as new data arrives, instead of retraining from
+scratch — see [`src/online_learning.py`](src/online_learning.py):
+
+```python
+from src.online_learning import OnlineTropicalModel
+
+model = OnlineTropicalModel().fit(names, sequences)   # initial training
+model.partial_fit(epochs=200)                          # continue (warm start)
+model.add_sequences(new_names, new_sequences)          # incorporate new taxa online
+model.save("models/online.npz")                        # persist; resume later with .load()
+print(model.score()["relative_improvement"])
+```
+
+`add_sequences` embeds the learned `omega` into the enlarged pair space and
+warm-starts, so an update is far cheaper than full retraining; the best-iterate
+guarantee means continued training never makes the correction worse than before.
 
 Artifacts land in `outputs/` (`distance_matrix.csv`, `corrected_distance_matrix.csv`,
 `omega.csv`, `history.csv`, `metrics.json`, `figures/*.png`, `trees/tree_after.{newick,csv,dot}`)
