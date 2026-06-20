@@ -51,6 +51,7 @@ export interface PipelineResult {
     total_branch_length: number;
   };
   params: Record<string, string | number>;
+  online?: { added: number; previous_taxa: number; total_taxa: number };
 }
 
 export interface RunParams {
@@ -61,6 +62,7 @@ export interface RunParams {
   quadruplet_sample_size: number;
   min_seq_length: number;
   alpha: number;
+  online?: boolean;
 }
 
 async function asError(r: Response): Promise<never> {
@@ -89,7 +91,9 @@ export async function runPipeline(p: RunParams): Promise<PipelineResult> {
   fd.append("quadruplet_sample_size", String(p.quadruplet_sample_size));
   fd.append("min_seq_length", String(p.min_seq_length));
   fd.append("alpha", String(p.alpha));
-  const r = await fetch(`${API}/pipeline`, { method: "POST", body: fd });
+  // When online learning is enabled, each run updates the persistent model.
+  const endpoint = p.online ? "/online-learn" : "/pipeline";
+  const r = await fetch(`${API}${endpoint}`, { method: "POST", body: fd });
   if (!r.ok) return asError(r);
   return r.json();
 }

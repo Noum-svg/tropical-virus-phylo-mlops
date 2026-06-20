@@ -542,6 +542,7 @@ export default function App() {
     quadruplet_sample_size: 500,
     min_seq_length: 1,
     alpha: 0.9,
+    online: false,
   });
 
   useEffect(() => {
@@ -1041,12 +1042,32 @@ function DatasetPage({
               </div>
             ))}
           </div>
+          <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
+            <input
+              checked={Boolean(params.online)}
+              className="mt-0.5 h-4 w-4"
+              onChange={(event) =>
+                setParams((current) => ({ ...current, online: event.target.checked }))
+              }
+              type="checkbox"
+            />
+            <span className="text-sm">
+              <span className="font-semibold text-slate-900 dark:text-white">
+                Online learning
+              </span>
+              <span className="block text-[12px] leading-4 text-slate-500 dark:text-slate-400">
+                The persistent model learns from each run — new taxa are added and the
+                correction is warm-started; re-running an input keeps refining it.
+              </span>
+            </span>
+          </label>
           <button
-            className="btn btn-primary mt-6 w-full py-3"
+            className="btn btn-primary mt-4 w-full py-3"
             disabled={loading}
             onClick={run}
           >
-            <Icon name="Play" /> Run complete pipeline
+            <Icon name="Play" />{" "}
+            {params.online ? "Run with online learning" : "Run complete pipeline"}
           </button>
         </Card>
       </div>

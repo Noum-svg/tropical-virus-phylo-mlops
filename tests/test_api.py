@@ -177,3 +177,45 @@ def test_tree_image_returns_png():
     assert resp.status_code == 200
     assert resp.headers["content-type"] == "image/png"
     assert resp.content[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_online_learning_accumulates_and_dedupes(tmp_path, monkeypatch):
+    import api.main as apimain
+
+    monkeypatch.setattr(apimain, "ONLINE_MODEL_PATH", tmp_path / "online.npz")
+
+    # first input -> all taxa are new
+    r1 = client.post(
+        "/online-learn",
+        data={"use_demo": "true", "epochs": "40", "min_seq_length": "1"},
+    )
+    assert r1.status_code == 200
+    b1 = r1.json()
+    assert b1["online"]["total_taxa"] >= 2
+    assert b1["online"]["added"] == b1["online"]["total_taxa"]
+    assert b1["relative_improvement"] >= -1e-9
+    assert "corrected_matrix" in b1 and "tree" in b1
+
+    # same input again -> dedup (0 added), model refined via partial_fit
+    b2 = client.post(
+        "/online-learn",
+        data={"use_demo": "true", "epochs": "40", "min_seq_length": "1"},
+    ).json()
+    assert b2["online"]["added"] == 0
+    assert b2["online"]["total_taxa"] == b1["online"]["total_taxa"]
+
+    # a different input grows the model online
+    csv = b"virus_name,rna_sequence\nNEW1,ACGTACGTACGTACGT\nNEW2,ACGTACGAACGTACGT\nNEW3,TTTTACGTACGTTTTT\n"
+    b3 = client.post(
+        "/online-learn",
+        files={"file": ("new.csv", csv, "text/csv")},
+        data={"epochs": "40", "min_seq_length": "1"},
+    ).json()
+    assert b3["online"]["added"] == 3
+    assert b3["online"]["total_taxa"] == b1["online"]["total_taxa"] + 3
+
+    # status + reset
+    status = client.get("/online-status").json()
+    assert status["exists"] and status["total_taxa"] == b3["online"]["total_taxa"]
+    assert client.post("/online-reset").json()["reset"] is True
+    assert client.get("/online-status").json()["exists"] is False

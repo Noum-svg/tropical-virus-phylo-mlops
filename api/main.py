@@ -30,7 +30,8 @@ from src.phylogeny import reconstruct_tree
 from src.predict import predict_from_sequences
 from src.tropical_grassmannian import tropical_score
 from src.tropical_gradient_descent import correct_distance_matrix
-from src.utils import num_pairs, project_to_distance_space
+from src.online_learning import OnlineTropicalModel
+from src.utils import num_pairs, project_to_distance_space, vector_to_matrix
 from src.visualization import render_tree
 
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
@@ -494,3 +495,156 @@ def tree_image(req: TreeImageRequest) -> StreamingResponse:
     plt.close(fig)
     buf.seek(0)
     return StreamingResponse(buf, media_type="image/png")
+
+
+# --------------------------------------------------------------------------- #
+# Online learning: a persistent model that learns from each submitted input
+# --------------------------------------------------------------------------- #
+ONLINE_MODEL_PATH = Path("models/online_model.npz")
+
+
+def _online_response(
+    model: OnlineTropicalModel, info: dict[str, int]
+) -> dict[str, Any]:
+    """Build a /pipeline-shaped payload from the persistent online model."""
+    n = model.n
+    labels = model.names
+    d = model._distance_matrix()
+    x = model.corrected_matrix()
+    omega = vector_to_matrix(model.omega, n) if n > 1 else np.zeros((n, n))
+    score = model.score()
+    tree = model.tree()
+    tsum = tree.summary()
+    lengths = [len(s) for s in model.sequences]
+    summ = sequence_summary(
+        pd.DataFrame(
+            {
+                "virus_name": labels,
+                "clean_sequence": model.sequences,
+                "sequence_length": lengths,
+            }
+        )
+    )
+    return {
+        "online": info,
+        "dataset": {
+            "file_name": "online_model (cumulative)",
+            "type": "DNA",
+            "n_total": n,
+            "n_valid": n,
+            "min_length": summ["min_length"],
+            "max_length": summ["max_length"],
+            "mean_length": round(float(summ["mean_length"]), 1),
+            "gc_content": round(float(summ["gc_content"]) * 100, 1),
+            "preview": [
+                {
+                    "virus_name": labels[i],
+                    "rna_sequence": (
+                        (model.sequences[i][:40] + "…")
+                        if len(model.sequences[i]) > 40
+                        else model.sequences[i]
+                    ),
+                }
+                for i in range(min(5, n))
+            ],
+            "total_rows": n,
+        },
+        "pairs": num_pairs(n),
+        "labels": labels,
+        "sequence_lengths": lengths,
+        "distance_matrix": d.tolist(),
+        "corrected_matrix": x.tolist(),
+        "omega": omega.tolist(),
+        "metrics_before": score["metrics_before"],
+        "metrics_after": score["metrics_after"],
+        "relative_improvement": score["relative_improvement"],
+        "history": _records(model.history),
+        "tree": {
+            "newick": tree.to_newick(),
+            "edges": tree.to_edge_list(),
+            "dot": tree.to_dot(),
+            "n_leaves": tsum["n_leaves"],
+            "n_internal": tsum["n_internal"],
+            "total_branch_length": round(tsum["total_branch_length"], 3),
+        },
+        "params": {
+            "epochs": model.config["epochs"],
+            "quadruplet_sample_size": model.config["quadruplet_sample_size"],
+            "optimizer": "Tropical Gradient Descent (online)",
+        },
+    }
+
+
+@app.post("/online-learn")
+def online_learn(
+    file: UploadFile | None = File(default=None),
+    use_demo: bool = Form(default=False),
+    reset: bool = Form(default=False),
+    alpha: float = Form(default=0.9),
+    min_seq_length: int = Form(default=1),
+    epochs: int = Form(default=200),
+) -> dict[str, Any]:
+    """Online learning: incorporate the submitted input into a persistent model.
+
+    New taxa are added and the correction is warm-started; re-submitting known
+    taxa instead continues (refines) training. The persistent model accumulates
+    knowledge across uses and is saved to ``models/online_model.npz``.
+    """
+    raw, _ = _load_input_csv(file, use_demo)
+    missing = [c for c in REQUIRED_COLUMNS if c not in raw.columns]
+    if missing:
+        raise HTTPException(400, f"CSV missing required column(s): {missing}.")
+    try:
+        clean_df = clean_dataframe(raw, min_seq_length=min_seq_length)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    if len(clean_df) == 0:
+        raise HTTPException(400, "No sequence survived cleaning/filtering.")
+
+    if reset and ONLINE_MODEL_PATH.exists():
+        ONLINE_MODEL_PATH.unlink()
+    if ONLINE_MODEL_PATH.exists():
+        model = OnlineTropicalModel.load(ONLINE_MODEL_PATH)
+    else:
+        model = OnlineTropicalModel(
+            alpha=alpha, config={"epochs": epochs, "quadruplet_sample_size": 5000}
+        )
+
+    n_before = model.n
+    existing = set(model.names)
+    new_names, new_seqs = [], []
+    for nm, sq in zip(clean_df["virus_name"], clean_df["clean_sequence"]):
+        if str(nm) not in existing:
+            new_names.append(str(nm))
+            new_seqs.append(str(sq))
+            existing.add(str(nm))
+
+    if new_names:
+        model.add_sequences(new_names, new_seqs, epochs=epochs)
+    elif model.n >= 2:
+        model.partial_fit(epochs=epochs)
+    else:
+        raise HTTPException(400, "Not enough sequences to learn from.")
+
+    ONLINE_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    model.save(ONLINE_MODEL_PATH)
+    return _online_response(
+        model,
+        {"added": len(new_names), "previous_taxa": n_before, "total_taxa": model.n},
+    )
+
+
+@app.get("/online-status")
+def online_status() -> dict[str, Any]:
+    """Report the persistent online model's size."""
+    if not ONLINE_MODEL_PATH.exists():
+        return {"exists": False, "total_taxa": 0}
+    return {"exists": True, "total_taxa": OnlineTropicalModel.load(ONLINE_MODEL_PATH).n}
+
+
+@app.post("/online-reset")
+def online_reset() -> dict[str, Any]:
+    """Forget the persistent online model."""
+    if ONLINE_MODEL_PATH.exists():
+        ONLINE_MODEL_PATH.unlink()
+    return {"reset": True, "total_taxa": 0}
