@@ -1,0 +1,63 @@
+# DVC pipeline: `dvc repro` rebuilds the project end-to-end.
+#
+# Stages read paths from params.yaml (defaults shown below). The input CSV at
+# data.raw_path must be real data -- the load_clean stage raises if it is
+# missing (sequences are never fabricated). To run the pipeline on the bundled
+# synthetic demo, point data.raw_path at data/sample/sample_viral_sequences.csv
+# and lower data.min_seq_length.
+stages:
+  load_clean:
+    cmd: python -m src.data_loader
+    deps:
+      - src/data_loader.py
+      - data/raw/multi_virus_rna_sequences_100.csv
+    params:
+      - data.min_seq_length
+    outs:
+      - data/processed/clean_sequences.csv
+
+  distance_matrix:
+    cmd: python -m src.distances
+    deps:
+      - src/distances.py
+      - data/processed/clean_sequences.csv
+    params:
+      - distance.alpha
+    outs:
+      - outputs/distance_matrix.csv
+
+  tropical_correction:
+    cmd: python -m src.train --matrix outputs/distance_matrix.csv --no-tree --no-mlflow
+    deps:
+      - src/train.py
+      - src/tropical_gradient_descent.py
+      - src/tropical_grassmannian.py
+      - outputs/distance_matrix.csv
+    params:
+      - optimization.epochs
+      - optimization.gamma
+      - optimization.lambda_reg
+      - optimization.epsilon
+      - optimization.quadruplet_sample_size
+      - seed
+    outs:
+      - outputs/corrected_distance_matrix.csv
+      - outputs/omega.csv
+      - outputs/history.csv
+      - models/omega.npy
+      - outputs/figures/loss_curve.png
+      - outputs/figures/violation_histograms.png
+      - outputs/figures/before_after_summary.png
+    metrics:
+      - outputs/metrics.json:
+          cache: false
+
+  phylogenetic_tree:
+    cmd: python -m src.phylogeny
+    deps:
+      - src/phylogeny.py
+      - outputs/corrected_distance_matrix.csv
+    outs:
+      - outputs/trees/tree_after.newick
+      - outputs/trees/tree_after_edges.csv
+      - outputs/trees/tree_after.dot

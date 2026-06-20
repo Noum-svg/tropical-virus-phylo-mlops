@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test / tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Secrets & environment
+.env
+*.key
+token*.txt
+
+# Real / private data -- NEVER commit real viral sequences (keep dir skeletons)
+data/raw/**
+!data/raw/
+!data/raw/.gitkeep
+data/processed/**
+!data/processed/
+!data/processed/.gitkeep
+
+# Generated artifacts (keep dir skeletons via .gitkeep)
+outputs/**
+!outputs/**/
+!outputs/**/.gitkeep
+models/**
+!models/
+!models/.gitkeep
+*.log
+
+# MLflow / DVC
+mlruns/
+.dvc/cache/
+.dvc/tmp/
+
+# Generated reports (keep hand-written docs + .gitkeep)
+reports/evaluation_report.md
+reports/scraper_stats.md
+
+# Reference material (not source)
+*.pdf
+
+# Leftover duplicate spec folder (kept locally, not tracked)
+Nouveau dossier/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+npm-debug.log*

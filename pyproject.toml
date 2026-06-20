@@ -1,0 +1,15 @@
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+# E741: ambiguous variable name. The four-point math uses the standard
+# quadruplet indices i < j < k < l, so `l` is intentional and clear in context.
+ignore = ["E741"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tropical Virus MLOps</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="logo">🧬</span> Tropical Virus MLOps
+      </div>
+      <nav class="nav" id="nav"></nav>
+      <div class="sidebar-foot">
+        <button class="btn primary" id="runTop" style="width:100%;justify-content:center;margin-bottom:12px;">Run Pipeline</button>
+        <div class="theme-toggle">
+          <button data-theme-btn="light" class="active">Light</button>
+          <button data-theme-btn="dark">Dark</button>
+        </div>
+        <div class="copyright">© 2026 Tropical Virus MLOps</div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn" title="menu">&#9776;</button>
+        <div class="title" id="pageTitle">Overview</div>
+        <div class="spacer"></div>
+        <span class="badge" id="apiBadge">API: checking…</span>
+      </header>
+
+      <div class="content">
+        <!-- OVERVIEW -->
+        <section class="page active" data-page="Overview">
+          <div id="ovEmpty" class="card placeholder">
+            <h3>No run yet</h3>
+            <p>Go to <b>Dataset</b>, upload a CSV (or use the synthetic demo), and click <b>Run Pipeline</b>.</p>
+          </div>
+          <div id="ovBody" style="display:none;">
+            <div class="grid cols-4" id="metricCards"></div>
+            <div class="card" style="margin-top:16px;">
+              <h3>Pipeline Progress</h3>
+              <div class="stepper" id="stepper"></div>
+            </div>
+            <div class="grid cols-3" style="margin-top:16px;">
+              <div class="card"><h3>Dataset Summary</h3><table class="kv" id="dsSummary"></table></div>
+              <div class="card"><h3>Metrics (Before vs After)</h3>
+                <table class="tbl" id="ovMetrics"></table></div>
+              <div class="card"><h3>Tree Summary</h3><table class="kv" id="treeSummary"></table></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DATASET -->
+        <section class="page" data-page="Dataset">
+          <div class="grid cols-2">
+            <div class="card">
+              <h3>Upload your CSV file</h3>
+              <div class="upload" id="dropzone">
+                <div>☁️ Drag &amp; drop your file here, or click to browse</div>
+                <div class="muted" style="font-size:12px;margin-top:6px;">CSV with columns: virus_name, rna_sequence</div>
+              </div>
+              <input type="file" id="fileInput" accept=".csv" hidden />
+              <div id="fileChip"></div>
+              <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+                <a class="btn" href="/example-csv">⬇ Download Example</a>
+                <button class="btn" id="useDemo">Use synthetic demo</button>
+              </div>
+              <p class="disclaimer" style="margin-top:14px;">The example is <b>synthetic</b> demonstration data — not real viral data. Non-diagnostic research tool.</p>
+            </div>
+            <div class="card">
+              <h3>Parameters</h3>
+              <div class="grid cols-2">
+                <div class="field"><label>Epochs</label><input id="p_epochs" type="number" value="200" /></div>
+                <div class="field"><label>Learning rate γ</label><input id="p_gamma" type="number" step="0.01" value="0.05" /></div>
+                <div class="field"><label>Lambda λ</label><input id="p_lambda" type="number" step="0.001" value="0.01" /></div>
+                <div class="field"><label>Quadruplet sample</label><input id="p_sample" type="number" value="500" /></div>
+                <div class="field"><label>Min length</label><input id="p_minlen" type="number" value="1" /></div>
+                <div class="field"><label>alpha (H vs P)</label><input id="p_alpha" type="number" step="0.05" value="0.9" /></div>
+              </div>
+              <button class="btn primary" id="runMain" style="width:100%;justify-content:center;margin-top:6px;">Run Pipeline</button>
+            </div>
+          </div>
+          <div class="card" style="margin-top:16px;">
+            <h3>Preview <span class="muted" id="rowCount"></span></h3>
+            <table class="tbl" id="previewTbl"><tbody><tr><td class="muted">No data loaded.</td></tr></tbody></table>
+          </div>
+        </section>
+
+        <!-- PREPROCESSING -->
+        <section class="page" data-page="Preprocessing">
+          <div class="card"><h3>Cleaning &amp; filtering</h3>
+            <p class="muted">Uppercase → remove whitespace → U→T → keep only A,C,G,T → drop empty/short/duplicates.</p>
+            <table class="kv" id="prepSummary"><tr><td class="muted">Run the pipeline to see statistics.</td></tr></table>
+          </div>
+          <div class="card" style="margin-top:16px;"><h3>Sequence length distribution</h3><div id="lenDist" style="height:320px;"></div></div>
+        </section>
+
+        <!-- DISTANCE MATRIX -->
+        <section class="page" data-page="Distance Matrix">
+          <div class="section-head"><h2>Distance Matrix</h2><span class="badge" id="dmBadge">—</span></div>
+          <div class="tabs" data-tabs="dm">
+            <button class="active" data-tab="heat">Matrix Heatmap</button>
+            <button data-tab="stats">Statistics</button>
+            <button data-tab="dist">Distribution</button>
+          </div>
+          <div class="card">
+            <div class="tab-pane active" data-pane="heat"><div id="dmHeat" style="height:460px;"></div></div>
+            <div class="tab-pane" data-pane="stats"><table class="kv" id="dmStats"></table></div>
+            <div class="tab-pane" data-pane="dist"><div id="dmDist" style="height:400px;"></div></div>
+          </div>
+        </section>
+
+        <!-- TROPICAL CORRECTION -->
+        <section class="page" data-page="Tropical Correction">
+          <div class="section-head"><h2>Tropical Correction (X = D + ω)</h2><span class="badge" id="tcBadge">—</span></div>
+          <div class="grid cols-2">
+            <div class="card"><h3>Loss over iterations</h3><div id="lossChart" style="height:360px;"></div></div>
+            <div class="card"><h3>Training Parameters</h3><table class="kv" id="trainParams"></table>
+              <div style="margin-top:10px;"><b id="riVal" class="muted"></b></div></div>
+          </div>
+          <div class="card" style="margin-top:16px;">
+            <div class="tabs" data-tabs="tc">
+              <button class="active" data-tab="X">Corrected Matrix (X)</button>
+              <button data-tab="omega">Omega (ω)</button>
+            </div>
+            <div class="tab-pane active" data-pane="X"><div id="xHeat" style="height:440px;"></div></div>
+            <div class="tab-pane" data-pane="omega"><div id="omegaHeat" style="height:440px;"></div></div>
+          </div>
+        </section>
+
+        <!-- PHYLOGENETIC TREE -->
+        <section class="page" data-page="Phylogenetic Tree">
+          <div class="section-head"><h2>Phylogenetic Tree</h2><span class="badge" id="ptBadge">—</span></div>
+          <div class="grid" style="grid-template-columns: 1fr 260px;">
+            <div class="card">
+              <div class="tabs" data-tabs="pt">
+                <button class="active" data-tab="viewer">Tree Viewer</button>
+                <button data-tab="newick">Newick</button>
+                <button data-tab="edges">Edge List</button>
+                <button data-tab="dot">DOT</button>
+              </div>
+              <div class="tab-pane active" data-pane="viewer"><img id="treeImg" class="tree-img" alt="tree" /></div>
+              <div class="tab-pane" data-pane="newick"><div class="mono" id="newickBox"></div></div>
+              <div class="tab-pane" data-pane="edges"><table class="tbl" id="edgesTbl"></table></div>
+              <div class="tab-pane" data-pane="dot"><div class="mono" id="dotBox"></div></div>
+            </div>
+            <div class="card">
+              <h3>Controls</h3>
+              <div class="field"><label>Layout</label>
+                <select id="treeLayout"><option value="circular">Circular</option><option value="rectangular">Rectangular</option></select></div>
+              <div class="field"><label><input type="checkbox" id="treeBranch" checked /> Use branch length</label></div>
+              <div class="field"><label><input type="checkbox" id="treeLabels" checked /> Show labels</label></div>
+              <div class="field"><label>Label size: <span id="lsVal">8</span></label><input type="range" id="treeLabelSize" min="4" max="16" value="8" /></div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">
+                <button class="btn" id="dlNewick">⬇ Newick</button>
+                <button class="btn" id="dlPng">⬇ PNG</button>
+                <button class="btn" id="dlDot">⬇ DOT</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- METRICS -->
+        <section class="page" data-page="Metrics">
+          <div class="card"><h3>Before vs After correction</h3><table class="tbl" id="metricsFull"></table></div>
+          <div class="card" style="margin-top:16px;"><h3>Comparison</h3><div id="metricsChart" style="height:380px;"></div></div>
+        </section>
+
+        <!-- DOWNLOADS -->
+        <section class="page" data-page="Downloads">
+          <div class="card"><h3>Downloads</h3>
+            <p class="muted">Available after a run.</p>
+            <div id="dlGrid" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+          </div>
+        </section>
+
+        <!-- API DOCS -->
+        <section class="page" data-page="API Docs">
+          <div class="card"><h3>API Documentation</h3>
+            <div class="field"><label>Base URL</label><input id="baseUrl" readonly /></div>
+            <p>Interactive docs: <a id="docsLink" href="/docs" target="_blank">/docs</a></p>
+            <h3 style="margin-top:18px;">Available Endpoints</h3>
+            <div id="endpoints"></div>
+          </div>
+        </section>
+
+        <!-- ABOUT -->
+        <section class="page" data-page="About">
+          <div class="card">
+            <h3>About</h3>
+            <p>Tropical Virus MLOps learns a tropical correction <b>X = D + ω</b> that reduces tropical four-point violations of a viral sequence distance matrix, then reconstructs a Neighbor-Joining tree.</p>
+            <p class="disclaimer">Non-diagnostic research and educational tool. Reducing four-point violations improves mathematical compatibility with an additive tree metric; it does not establish biological correctness.</p>
+            <h3 style="margin-top:16px;">Stack</h3>
+            <div class="tech"><span>Python 3.10+</span><span>FastAPI</span><span>NumPy</span><span>pandas</span><span>Biopython</span><span>matplotlib</span><span>Streamlit</span><span>DVC</span><span>MLflow</span><span>Docker</span></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

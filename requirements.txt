@@ -1,0 +1,31 @@
+# tropical-virus-phylo-mlops -- pinned dependencies (Python 3.10+).
+# Versions pinned to the verified development environment for reproducibility.
+
+# --- Scientific core ---
+numpy==2.4.2
+pandas==2.3.3
+matplotlib==3.10.8
+biopython==1.87
+PyYAML==6.0.3
+
+# --- API ---
+fastapi==0.136.1
+uvicorn[standard]==0.46.0
+pydantic==2.13.3
+python-multipart==0.0.20
+
+# --- Dashboard ---
+streamlit==1.55.0
+
+# --- MLOps ---
+mlflow==3.12.0
+dvc==3.67.1
+
+# --- HTTP / clients ---
+httpx==0.28.1
+requests==2.32.5
+
+# --- Testing & quality ---
+pytest==9.0.3
+black==24.10.0
+ruff==0.8.6

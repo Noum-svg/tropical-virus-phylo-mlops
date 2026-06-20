@@ -1,0 +1,31 @@
+# Local deployment:  docker compose up --build
+#   Web UI + API : http://localhost:8000   (the professional dashboard)
+#   Streamlit    : http://localhost:8501   (secondary dashboard)
+services:
+  api:
+    build: .
+    image: tropical-virus-phylo
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - NCBI_EMAIL=${NCBI_EMAIL:-}
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+      - ./models:/app/models
+    restart: unless-stopped
+
+  streamlit:
+    image: tropical-virus-phylo
+    command: >
+      python -m streamlit run app/streamlit_app.py
+      --server.port 8501 --server.address 0.0.0.0 --server.headless true
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    restart: unless-stopped

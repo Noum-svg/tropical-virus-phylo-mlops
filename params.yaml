@@ -1,0 +1,66 @@
+# =============================================================================
+# tropical-virus-phylo-mlops -- central configuration
+#
+# Loaded once (see src.utils.load_params) and passed down through the pipeline;
+# no magic numbers scattered in code. All randomness is seeded from `seed` so
+# every run is reproducible.
+#
+# Note: YAML floats in scientific notation MUST carry a decimal point
+# (1.0e-9, not 1e-9) or PyYAML parses them as strings.
+# =============================================================================
+
+# Global random seed (NumPy default_rng). Every stochastic step reads this.
+seed: 42
+
+data:
+  # Real input CSV (git-ignored). If absent, the loader raises a clear error;
+  # sequences are NEVER fabricated. Acquire real data with src/scraper_ncbi.py.
+  raw_path: data/raw/multi_virus_rna_sequences_100.csv
+  processed_dir: data/processed
+  required_columns:
+    - virus_name
+    - rna_sequence
+  # Reject cleaned sequences shorter than this. The function default is 1;
+  # real ~100-base viral runs keep this high to drop fragments.
+  min_seq_length: 100
+
+distance:
+  # d = alpha * H + (1 - alpha) * P
+  #   H : normalized Hamming distance on the shared prefix
+  #   P : relative length penalty
+  # alpha in [0, 1]; this convex combination keeps d in [0, 1].
+  alpha: 0.9
+
+four_point:
+  # Numerical tolerance: a quadruplet with delta <= epsilon is treated as
+  # "exact" (tropically four-point compatible).
+  epsilon: 1.0e-9
+  # null -> use all C(n, 4) quadruplets when feasible; otherwise reproducibly
+  # sample this many without replacement using `seed`.
+  quadruplet_sample_size: null
+
+optimization:
+  epochs: 1000
+  gamma: 0.05          # base step-size factor
+  lambda_reg: 0.001    # Frobenius regularization on omega
+  epsilon: 1.0e-9      # convergence tolerance on the tropical norm of the gradient
+  quadruplet_sample_size: null
+  seed: 42
+
+outputs:
+  output_dir: outputs
+  figures_dir: outputs/figures
+  trees_dir: outputs/trees
+  models_dir: models
+
+mlflow:
+  experiment_name: tropical-virus-phylo
+  tracking_uri: null   # null -> local ./mlruns
+
+scraper:
+  # NCBI Entrez configuration for OPTIONAL real-data acquisition.
+  email: null                 # REQUIRED by NCBI before any Entrez request
+  api_key_env: NCBI_API_KEY   # read the API key from this environment variable
+  database: nucleotide
+  sleep_seconds: 0.4          # rate-limit courtesy delay between requests
+  max_retries: 3
