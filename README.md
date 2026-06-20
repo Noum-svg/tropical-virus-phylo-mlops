@@ -151,7 +151,10 @@ python main.py --demo --no-mlflow
 For a strong training signal, fetch hundreds of real sequences (set
 `NCBI_EMAIL` first; NCBI requires a contact address). The distance computation is
 vectorized and the optimizer samples `optimization.quadruplet_sample_size`
-(default 5000) quadruplets per epoch, so high taxon counts stay fast.
+(default 5000) quadruplets per epoch. For very large `n` the per-epoch cost is
+dominated by the `n × n` correction update (not the quadruplet count), so lower
+`optimization.epochs` (e.g. 200 — best-iterate converges quickly) to keep
+training fast.
 
 ```bash
 export NCBI_EMAIL="you@example.com"
