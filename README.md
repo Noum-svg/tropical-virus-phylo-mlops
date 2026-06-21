@@ -193,44 +193,54 @@ and `models/omega.npy`; a report is written to `reports/evaluation_report.md`.
 
 ## Run locally with Docker (recommended)
 
-The professional **React** dashboard is built and served by the app. With Docker
-Desktop running (the image build compiles the frontend automatically):
+Docker Compose starts three isolated services on one private network:
+
+| Service | Container role | Host URL |
+| --- | --- | --- |
+| `frontend` | nginx serves React and reverse-proxies API requests | http://localhost:8080 |
+| `backend` | FastAPI only | http://localhost:8000 |
+| `streamlit` | Secondary Streamlit dashboard | http://localhost:8501 |
 
 ```bash
-docker compose up --build
+docker compose build
+docker compose up -d
+docker compose ps
 ```
 
-Then open:
+Open **http://localhost:8080** for the professional React application. nginx
+serves the SPA and proxies `/health`, `/pipeline`, online-learning, tree, matrix,
+and documentation endpoints to `backend:8000` over Docker service-name DNS.
+The browser therefore stays on one origin and does not need cross-origin API
+calls.
 
-- **http://localhost:8000** — the professional React web UI (upload a CSV or use
-  the synthetic demo, run the pipeline, explore the distance-matrix heatmap, loss
-  curve, corrected matrix, the clade-coloured phylogenetic tree, metrics, and
-  downloads).
-- **http://localhost:8000/docs** — interactive API docs.
-- **http://localhost:8501** — the secondary Streamlit dashboard.
+- **http://localhost:8080/docs** — FastAPI Swagger UI through nginx.
+- **http://localhost:8000/docs** — direct backend documentation.
+- **http://localhost:8501** — Streamlit; its `API_BASE` is
+  `http://backend:8000` inside Compose.
 
 Stop with `docker compose down`. `data/`, `outputs/`, and `models/` are mounted
-so runs persist on your machine.
+into the Python services so runs and the online model persist on your machine.
 
-Compose builds the shared application image once through the API service; the
-Streamlit service reuses that image and starts through `python -m streamlit`.
+> `0.0.0.0` is a server bind address, not a browser destination. Always use
+> `http://localhost:<published-port>` from the host.
 
 ## Frontend (React + Vite + TypeScript + Tailwind)
 
-The professional UI lives in [`frontend/`](frontend/). The API serves the built
-app from `frontend/dist` when present, otherwise it falls back to the no-build
-static UI in `web/`. To build or develop it:
+The professional UI lives in [`frontend/`](frontend/). In production, the
+frontend image builds it with Node 22 and nginx serves `frontend/dist` from `/`.
+To build or develop it locally:
 
 ```bash
 cd frontend
 npm install
-npm run build      # outputs frontend/dist, served by FastAPI at http://localhost:8000
+npm run build      # outputs frontend/dist
 npm run dev        # OR a hot-reload dev server (proxies the API at :8000)
 ```
 
-It calls the API's `/pipeline`, `/tree-image`, and other endpoints, renders charts
-with Recharts, and shows the server-rendered tree image. It orchestrates the API
-only — no math in the frontend.
+Development calls `http://localhost:8000` directly. The production build uses
+an empty API base, so requests stay on `http://localhost:8080` and nginx proxies
+them to FastAPI. The frontend orchestrates the API only — no scientific math is
+implemented in React.
 
 The responsive application shell includes grouped scientific navigation,
 accessible light and dark themes, explicit loading and error states, mobile

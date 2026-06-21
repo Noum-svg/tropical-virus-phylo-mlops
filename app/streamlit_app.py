@@ -9,6 +9,7 @@ Neighbor-Joining math is implemented here. Run with::
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -23,6 +24,7 @@ from src.tropical_grassmannian import tropical_score
 from src.utils import matrix_to_vector
 
 DEMO_CSV = Path("data/sample/sample_viral_sequences.csv")
+API_BASE = os.getenv("API_BASE", "http://127.0.0.1:8000").rstrip("/")
 PAGES = [
     "Overview",
     "Dataset",
@@ -287,10 +289,10 @@ def page_downloads() -> None:
 def page_api_docs() -> None:
     st.header("API")
     st.markdown(
-        "Start the API with `uvicorn api.main:app --reload`, then open "
-        "[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)."
+        "The API base URL is configured with `API_BASE`. In Docker, Streamlit "
+        "uses the internal service address `http://backend:8000`."
     )
-    url = st.text_input("Health endpoint", "http://127.0.0.1:8000/health")
+    url = st.text_input("Health endpoint", f"{API_BASE}/health")
     if st.button("Check API health"):
         try:
             import requests

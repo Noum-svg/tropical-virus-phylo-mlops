@@ -1,5 +1,6 @@
 // API client, shared types, and small formatting helpers.
 
+// Development calls FastAPI directly; production uses the nginx same-origin proxy.
 export const API = import.meta.env.DEV ? "http://localhost:8000" : "";
 
 export interface Metrics {

@@ -5,6 +5,7 @@
 **/__pycache__
 *.pyc
 .pytest_cache
+.pytest-*
 .ruff_cache
 .mypy_cache
 .venv
@@ -28,3 +29,4 @@ reports/scraper_stats.md
 
 frontend/node_modules
 frontend/dist
+npm-debug.log*

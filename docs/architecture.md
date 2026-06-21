@@ -49,3 +49,36 @@ tropical_correction → phylogenetic_tree`.
 Real sequences are never fabricated. A missing input CSV raises a clear error.
 `data/sample/sample_viral_sequences.csv` is **synthetic** demonstration data for
 the dashboard and CI only, clearly labeled and never presented as a result.
+
+## Container architecture
+
+Docker Compose runs one responsibility per container on the shared
+`tropical-virus-phylo-network` network:
+
+```text
+browser
+  |
+  | http://localhost:8080
+  v
+frontend (nginx + React)
+  |
+  | reverse proxy via service DNS
+  v
+backend:8000 (FastAPI)
+  ^
+  | API_BASE=http://backend:8000
+  |
+streamlit:8501
+```
+
+The images are defined independently:
+
+| Service | Dockerfile | Runtime |
+| --- | --- | --- |
+| `backend` | `docker/Dockerfile.backend` | Python 3.12 + FastAPI |
+| `frontend` | `docker/Dockerfile.frontend` | Node 22 build + nginx |
+| `streamlit` | `docker/Dockerfile.streamlit` | Python 3.12 + Streamlit |
+
+nginx serves the SPA with `try_files $uri /index.html` and proxies all public
+API paths to `http://backend:8000`. Persistent host mounts keep `data/`,
+`outputs/`, and `models/` outside the containers.
